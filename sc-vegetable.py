@@ -1,6 +1,25 @@
+import os
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import urllib.request
+
+
+BASE_DIR = os.path.dirname(__file__)
+
+
+def get_output_dir_path():
+    """アウトプットディレクトリの絶対パスを取得
+    Returns (str): アウトプットディレクトリの絶対パス
+    """
+    output_dir_path = os.path.join(BASE_DIR, "output")
+
+    # outputディレクトリが存在しない場合
+    if not os.path.exists(output_dir_path):
+        os.makedirs(output_dir_path)
+
+    return output_dir_path
+
 
 # Chromeの起動
 driver = webdriver.Chrome()
@@ -12,7 +31,7 @@ driver.get("https://free-materials.com/tag/%E9%87%8E%E8%8F%9C/")
 elems_vegetable = driver.find_elements(By.CLASS_NAME, "post-list-thumb")
 
 # urlの配列
-url = []
+urls = []
 
 for vegetable in elems_vegetable:
 
@@ -22,13 +41,18 @@ for vegetable in elems_vegetable:
     # src img link
     src = tag_vegetable.get_attribute('src')
 
-    url.append(src)
+    urls.append(src)
 
-for i in range(len(url)):
+# outputディレクトリのパスを取得
+output_dir_path = get_output_dir_path()
+index = 1
 
-    savename =  "C:/python_workspace/image-folder/complete-image/" + "vegetable" + str(i) + ".jpg"
-    vegetable = urllib.request.urlopen(url[i]).read()
+for url in urls:
+    savename = f"vegetable_{str(index)}.jpg"
+    index += 1
+    vegetable = urllib.request.urlopen(url).read()
 
-    with open(savename, mode="wb") as f:
+    save_file_path = os.path.join(output_dir_path, savename)
+
+    with open(save_file_path, mode="wb") as f:
         f.write(vegetable)
-        print("保存しました")
